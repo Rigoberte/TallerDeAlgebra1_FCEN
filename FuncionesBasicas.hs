@@ -26,8 +26,8 @@ minimo :: Float -> Float -> Float
 minimo x y |x > y = y
  |otherwise = (x)
 
-restaN :: Int -> Int -> Int
-restaN n m|((m > n) || (m == n)) = 0
+restaNatural :: Int -> Int -> Int
+restaNatural n m|((m > n) || (m == n)) = 0
  |otherwise = n - m
 
 sumatoria :: Int -> Int
