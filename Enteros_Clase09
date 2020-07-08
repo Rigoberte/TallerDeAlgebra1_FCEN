@@ -1,0 +1,120 @@
+type Set a = [a]
+
+divNat::Int -> Int -> Int --a = d*q + r  && d|(a-r)
+divNat a d |a < d = 0
+ |otherwise = 1 + divNat (a-d) d
+
+modNat:: Int -> Int -> Int
+modNat a d |a < d = a
+ |otherwise = modNat (a-d) d
+
+modulo::Int -> Int -> Int
+modulo 0 d = 0
+modulo a d |a>0 && (abs a) < (abs d) = a
+ |a<0 && (abs a) < (abs d) = d+a
+ |a > 0 = modulo (a-d) d
+ |otherwise = modulo (a+d) d
+
+--dividido:: Int -> Int -> Int
+--dividido a d = (signum a) * (signum d) * absq
+-- where absq = divNat (abs (a-(modulo a d))) (abs d)
+
+entre0y2pi:: Float -> Float
+entre0y2pi x |x >= 2*pi = entre0y2pi (x-2*pi)
+ |x<0 = entre0y2pi (x+2*pi)
+ |otherwise = x
+
+cuadrante::Int -> Int -> Int
+cuadrante a b |a>0 && b>0 = 1
+ |b>0 = 2
+ |a>0 = 4
+ |otherwise = 3
+
+voltereta:: Set Integer -> Set Integer
+voltereta list = vuelta list []
+
+vuelta::Set Integer -> Set Integer -> Set Integer
+vuelta list res |tail list == [] = head list:res
+ |otherwise = vuelta (tail list) (head list:res)
+
+digitos :: Integer -> Integer -> Set Integer
+digitos 0 m = []
+digitos n m = nEnBasem n m []
+
+nEnBasem :: Integer -> Integer -> Set Integer -> Set Integer
+nEnBasem n m list |(div n m)==0 = voltereta (r:list)
+ |otherwise = nEnBasem (div n m) m (r:list)
+ where r = mod n m
+
+numero :: Set Integer -> Integer -> Integer
+numero list m = nBase list m 0
+
+nBase :: Set Integer -> Integer -> Int -> Integer
+nBase list m i |tail list == [] = head list* m^(i)
+ |otherwise = (head list) * m^(i) + nBase (tail list) m (i+1)
+
+divisores::Int -> Set Int
+divisores 0 = [0]
+divisores x = f (abs x) (abs (x-1)) [abs x]
+
+f::Int -> Int -> Set Int -> Set Int
+f x y list|y<=1 = 1:(list)
+ |mod x y == 0 = f x (y-1) (y:list)
+ |otherwise = f x (y-1) list
+
+pertenece::[Int] -> Int -> Bool
+pertenece list m|list==[] = False
+ |head list == m = True
+ |otherwise = pertenece (tail list) m
+
+interseccion::Set Int -> Set Int -> Set Int
+interseccion c1 c2 = intersec c1 c2 []
+
+intersec::Set Int -> Set Int -> Set Int -> Set Int
+intersec [] c2 c3 = c3
+intersec c1 c2 c3 |pertenece c2 (head c1) = intersec (tail c1) c2 (head c1:c3)
+ |otherwise = intersec (tail c1) c2 c3
+
+maximoConj::Set Int -> Int
+maximoConj (x:xs) |xs == [] = x
+ |x <= head xs = maximoConj xs
+ |otherwise = maximoConj (x:(tail xs))
+
+mcDef::Int -> Int -> Int
+mcDef a 0 = abs a
+mcDef 0 b = abs b
+mcDef a b = maximoConj (interseccion (divisores a) (divisores b))
+
+mcd::Int -> Int -> Int
+mcd 0 b = abs b
+mcd a 0 = abs a
+mcd a b = mcd b (mod a b)
+
+union::Set Int -> Set Int -> Set Int
+union [] c2 = c2
+union c1 c2 |not(pertenece c2 (head c1)) = union (tail c1) (head c1:c2)
+ |otherwise = union (tail c1) c2
+
+tieneDivisoresDesde :: Int -> Int -> Bool
+tieneDivisoresDesde n k |k == n = False
+ |otherwise = (mod n k == 0) || tieneDivisoresDesde n ( k + 1 )
+
+esPrimo:: Int -> Bool
+esPrimo n = (n > 1) && not (tieneDivisoresDesde n 2)
+
+filtroPrimo::Set Int -> Set Int
+filtroPrimo [] = []
+filtroPrimo (x:xs) |esPrimo x = x:(filtroPrimo xs)
+ |otherwise = filtroPrimo xs
+
+mcm::Int -> Int -> Int
+mcm a 0 = 0
+mcm 0 b = 0
+mcm a b = mcmm a b (filtroPrimo (union (divisores a) (divisores b))) 1
+
+mcmm::Int -> Int -> Set Int -> Int -> Int
+mcmm a b [] res = res
+mcmm a b (x:xs) res |(mod a x == 0) && (mod b x == 0) = mcmm (div a x) (div b x) (x:xs) (x*res)
+ |(mod a x == 0) = mcmm (div a x) b (x:xs) (x*res)
+ |(mod b x == 0) = mcmm a (div b x) (x:xs) (x*res)
+ |otherwise = mcmm a b xs res
