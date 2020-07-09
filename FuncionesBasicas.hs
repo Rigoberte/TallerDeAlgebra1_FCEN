@@ -61,6 +61,7 @@ esPrimo n = (n > 1) && not (tieneDivisoresDesde n 2)
 
 --Listas======================================
 --L===========================================
+type Set a = [a]
 
 len:: Set Int -> Int
 len list |tail list == [] = 1
@@ -90,3 +91,20 @@ voltereta list = vuelta list []
 vuelta::Set Int -> Set Int -> Set Int
 vuelta list res |tail list == [] = head list:res
  |otherwise = vuelta (tail list) (head list:res)
+
+--Enteros===========================================
+--E=================================================
+
+mcd::Int -> Int -> Int
+mcd 0 b = abs b
+mcd a 0 = abs a
+mcd a b = mcd b (mod a b)
+
+divisores::Int -> Set Int
+divisores 0 = [0]
+divisores x = f (abs x) (abs (x-1)) [abs x]
+
+f::Int -> Int -> Set Int -> Set Int
+f x y list|y<=1 = 1:(list)
+ |mod x y == 0 = f x (y-1) (y:list)
+ |otherwise = f x (y-1) list
