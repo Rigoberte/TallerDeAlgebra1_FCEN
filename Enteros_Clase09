@@ -118,3 +118,10 @@ mcmm a b (x:xs) res |(mod a x == 0) && (mod b x == 0) = mcmm (div a x) (div b x)
  |(mod a x == 0) = mcmm (div a x) b (x:xs) (x*res)
  |(mod b x == 0) = mcmm a (div b x) (x:xs) (x*res)
  |otherwise = mcmm a b xs res
+
+emcd::Int -> Int -> (Int, Int, Int)
+emcd a b = euclidesmcd a b 1
+
+euclidesmcd::Int -> Int -> Int -> (Int, Int, Int)
+euclidesmcd a b s |mod ((mcd a b)-s*a) b == 0 = ((mcd a b), s,div ((mcd a b)-s*a) b)
+ |otherwise = euclidesmcd a b (s+1)
